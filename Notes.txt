@@ -12,3 +12,8 @@ mesh
 job
 visualization
 -------------------------------------
+Abaqus 用户手册
+Abaqus Scripting Reference Manual
+Abaqus Scripting User's Manual
+Getting Started with Abaqus: Interactive Edition
+-------------------------------------
