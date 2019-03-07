@@ -1,2 +1,14 @@
 Python语言在Abaqus中的应用 曹金凤
 2019-03-05
+-------------------------------------
+依次访问下列各个模块
+part
+material
+section
+assembly
+step
+load
+mesh
+job
+visualization
+-------------------------------------
