@@ -1,0 +1,49 @@
+# -*- coding: mbcs -*-
+from part import *
+from material import *
+from section import *
+from assembly import *
+from step import *
+from interaction import *
+from load import *
+from mesh import *
+from optimization import *
+from job import *
+from sketch import *
+from visualization import *
+from connectorBehavior import *
+mdb.Model(name='Beam')
+mdb.models['Beam'].ConstrainedSketch(name='beamProfile', sheetSize=250)
+mdb.models['Beam'].sketches['beamProfile'].rectangle(point1=(-100, 10), point2=
+    (100, -10))
+mdb.models['Beam'].Part(dimensionality=THREE_D, name='Beam', type=
+    DEFORMABLE_BODY)
+mdb.models['Beam'].parts['Beam'].BaseSolidExtrude(depth=25.0, sketch=
+    mdb.models['Beam'].sketches['beamProfile'])
+mdb.models['Beam'].Material(name='Steel')
+mdb.models['Beam'].materials['Steel'].Elastic(table=((209000.0, 0.3), ))
+mdb.models['Beam'].HomogeneousSolidSection(material='Steel', name='beamSection'
+    , thickness=1.0)
+mdb.models['Beam'].parts['Beam'].SectionAssignment(region=(
+    mdb.models['Beam'].parts['Beam'].cells, ), sectionName='beamSection')
+mdb.models['Beam'].rootAssembly.Instance(dependent=OFF, name='beamInstance', 
+    part=mdb.models['Beam'].parts['Beam'])
+mdb.models['Beam'].StaticStep(description='Load the top of the beam', 
+    initialInc=0.1, name='beamLoad', previous='Initial', timePeriod=1.0)
+mdb.models['Beam'].EncastreBC(createStepName='beamLoad', name='Fixed', region=(
+    mdb.models['Beam'].rootAssembly.instances['beamInstance'].faces.getSequenceFromMask(
+    mask=('[#4 ]', ), ), ))
+mdb.models['Beam'].Pressure(createStepName='beamLoad', magnitude=0.5, name=
+    'Pressure', region=((
+    mdb.models['Beam'].rootAssembly.instances['beamInstance'].faces.getSequenceFromMask(
+    mask=('[#8 ]', ), ), SIDE1), ))
+mdb.models['Beam'].rootAssembly.setElementType(elemTypes=(ElemType(
+    elemCode=C3D8I, elemLibrary=STANDARD), ), regions=(
+    mdb.models['Beam'].rootAssembly.instances['beamInstance'].cells, ))
+mdb.models['Beam'].rootAssembly.seedPartInstance(regions=(
+    mdb.models['Beam'].rootAssembly.instances['beamInstance'], ), size=10.0)
+mdb.models['Beam'].rootAssembly.generateMesh(regions=(
+    mdb.models['Beam'].rootAssembly.instances['beamInstance'], ))
+mdb.Job(description='beam test', model='Beam', name='beam_job')
+mdb.jobs['beam_job'].submit()
+mdb.jobs['beam_job'].waitForCompletion()

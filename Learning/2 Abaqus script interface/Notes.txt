@@ -9,3 +9,4 @@ abaqus viewer startup = myscript.py
 不启动Abaqus/CAE而直接运行脚本
 abaqus cae noGUI = myscript.py
 abaqus viewer noGUI = myscript.py
+--------------------------------------------
