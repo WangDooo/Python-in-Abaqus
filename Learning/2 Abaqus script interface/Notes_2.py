@@ -43,3 +43,16 @@ from abaqusConstants import *
 库指的是储存某一特定类型对象的容器
 mdb.models # 包含了模型数据库中的所有模型
 mdb.models['Model-1'].parts # 包含了模型Model-1中的所有部件
+
+mdb.models['engine'].Material('steel') # 调用构造函数Material创建了对象steel
+steel = mdb.models['engine'].materials['steel'] # 将名为steel的材料添加到库materials中
+
+一般情况下，库中的关键字为字符串
+可以调用 keys() 方法来访问库中的关键字
+for key in session.viewports.keys():
+	print(key)
+
+调用 changeKey() 可以改变库的关键字名
+mdb.models['Model-1'].parts.changeKey(fromName='housing', toName='form')
+3. 数组 arrays
+Abaqus中所有的节点和单元分别存在数组 MeshNodeArrays 和 MeshElementArrays 中
