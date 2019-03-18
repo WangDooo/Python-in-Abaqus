@@ -11,7 +11,9 @@ abaqus viewer startup = myscript.py
 abaqus cae noGUI = myscript.py
 abaqus viewer noGUI = myscript.py
 ------------------------------------------
-Abaqus 脚本接口基础知识
+2.2 Abaqus 脚本接口基础知识
+------------------------------------------
+使用《Abaqus Scripting Reference Manual》
 1. 命令的排列顺序
 2. 访问(access)对象
 新对话session,CAE将导入所有模块
@@ -56,3 +58,53 @@ for key in session.viewports.keys():
 mdb.models['Model-1'].parts.changeKey(fromName='housing', toName='form')
 3. 数组 arrays
 Abaqus中所有的节点和单元分别存在数组 MeshNodeArrays 和 MeshElementArrays 中
+4. 布尔类型 Booleans
+5. 序列 sequences
+Abaqus脚本接口中定义了由相同类型对象组成的专门序列
+1） 由几何对象（顶点、边等）组成的GeomSequence序列
+2） 由节点或单元组成的MeshSequence序列
+3） 由表面组成的SurfSequence序列
+成员edges faces vertices cells ips 均由GeomSequence对象派生而来
+
+创建名为Switch的三维变形体部件
+from abaqusConstants import *
+mdb.Model('Body')
+mySketch = mdb.models['Body'].ConstrainedSketch(name='__profile__', sheetSize=200.0)
+mySketch.rectangle(point1=(0.0,0.0), point2=(70.0,70.0))
+switch = mdb.models['Body'].Part(name='Switch', dimensionality=THREE_D, type=DEFORMABLE_BODY)
+switch.BaseSolidExtrude(sketch=mySketch, depth=20.0)
+------------------------------------------
+面向对象编程与Abaqus脚本接口
+1. 脚本接口中的方法
+print(mdb.models['Model-1'].parts['Part-1'].vertices[0].pointOn) # 输入Part-1第1个顶点的坐标
+2. 脚本接口中的成员
+Abaqus对象的成员具有只读属性，因此，不允许使用赋值语句指定成员的值
+可以调用 setValues() 方法来改变成员值
+
+脚本接口中构造函数、方法和成员的使用方法实例
+见 constructor_method_member.py
+------------------------------------------
+异常和异常处理
+1. 标准Abaqus脚本接口异常
+（1）InvalidNameError 脚本中定义了无效的名字
+（2）RangeError 数据值超出定义范围
+（3）AbaqusError 建模过程中的操作与前后设置的相关性
+（4）AbaqusException 同上
+2. 其他Abaqus脚本接口异常
+3. 错误处理 error handling
+try:
+	session.Viewport(name='tiny', width=1, height=1)
+except RangeError, message:
+	print('Viewport is too small:', message)
+print('Script continues running and prints this line')
+------------------------------------------
+2.3 在CAE中使用脚本接口
+------------------------------------------
+
+------------------------------------------
+
+------------------------------------------
+
+------------------------------------------
+
+------------------------------------------
