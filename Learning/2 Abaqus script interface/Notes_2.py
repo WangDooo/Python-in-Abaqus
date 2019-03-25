@@ -184,11 +184,7 @@ del myMaterial
 建议使用findAt方法来寻找vertex edee face cell
 findAt 如果两个实体在指定点处相交或重合，将返回查找的第一个实体对象
 ------------------------------------------
-
-------------------------------------------
-
-------------------------------------------
-
-------------------------------------------
-
+指定视口中的显示对象
+session.viewports[name].setValues(displayedObject=object)
+displayedObject参数可以是 Part Assembly Sketch Odb XY-Plot对象或 None
 ------------------------------------------
