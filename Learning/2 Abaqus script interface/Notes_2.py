@@ -147,5 +147,48 @@ odbAccess
 允许类似对象共享公共属性
 所谓抽象，是指Abaqus对象模型中并未包含属于抽象基本类型的对象，而是通过抽象基本类型来建立对象之间的关系。
 ------------------------------------------
+查询对象模型
+1. 调用 type()函数查询对象类型
+vp = session.viewports['Viewport: 1'] # 1 之前有一个空格
+print(type(vp))
+2. 调用 object.__members__ 查询对象的成员
+print(vp.__members__)
+3. 调用 object.__methods__ 查询对象的方法
+print(vp.__methods__)
+4. 调用 object.__doc__ 查询相关信息
+from odbAccess import openOdb
+print(openOdb.__doc__)
+5. 使用[Tab]键查询对象和方法中的关键字
+------------------------------------------
+复制和删除对象
+1. 复制对象
+复制构造函数 (copy constructors) 格式如下：
+ObjectName(name='name', objectToCopy=objectToBeCopied)
+复制构造函数将返回名为name,且与objectToBeCopied类型相同的对象
+firstBolt = mdb.models['Metric'].Part(name='boltPattern', dimensionality=THREE_D, type=DEFORMABLE_BODY)
+secondBolt = mdb.models['Metric'].Part(name='newBoltPattern', objectToCopy=firstBolt)
+2. 删除对象
+使用Python的del方法来删除对象
+myMaterial = mdb.models['Model-1'].Material(name='aluminum')
+del mdb.models['Model-1'].materials['aluminum'] # 删除了aluminum对象 变量myMaterial仍存在
+del myMaterial
+------------------------------------------
+指定区域  	详见createRegions.py
+区域(region) 可以是定义的集合(set)、表面对象(surface object)或临时区域对象(temporary Region object)
+很多命令都包含region参数:
+1. Load: 指定施加荷载区域
+2. Mesh: 指定单元类型、网格种子的定义区域
+3. Set: 指定集合的区域，节点集、单元集
+编写脚本时，不建议通过ID来确定区域命令中的vertex edge face cell 
+不要出现类似的命令 myFace = myModel.parts['Door'].faces[3]
+建议使用findAt方法来寻找vertex edee face cell
+findAt 如果两个实体在指定点处相交或重合，将返回查找的第一个实体对象
+------------------------------------------
+
+------------------------------------------
+
+------------------------------------------
+
+------------------------------------------
 
 ------------------------------------------
