@@ -100,11 +100,52 @@ print('Script continues running and prints this line')
 ------------------------------------------
 2.3 在CAE中使用脚本接口
 ------------------------------------------
+Abaqus对象模型
+成员：对象封装的数据
+方法：处理数据的函数
+构造函数：创建对象的方法
+对象之间的关系包括：（1）所有权 ownership (2) 关联 association
+一般情况下，Abaqus对象模型包含三个根(root)对象，分别是：
+Session对象 Mdb对象 Odb对象
+1. Session对象
+from abaqus import *
+from abaqus import session
+Session对象包含 定义视口(viewports)对象 远程队列(queues)对象 视图(view)对象
+2. Mdb对象
+from abaqus import *
+from abaqus import mdb
+Mdb对象 是由 Model对象和Job对象组成
+Model对象 由 Part Section Material Step 对象组成
+Job对象模型比较简单直接，他不属于任何其他对象
+注意：Job对象引用了Model对象，但Model对象不拥有Job对象
+3. Odb对象
+from odbAccess import *
+from odbAccess import openOdb, Odb
+Odb对象 是由 模型数据(model data) 和 结果数据(result data)
 
+cell4 = mdb.models['block'].parts['crankcase'].cells[4]
 ------------------------------------------
-
+导入模块
+Abaqus中的核心模块及功能
+assembly
+datum
+interaction
+job
+load
+materials
+mesh
+part
+partition
+section 
+sketch 
+step
+visualization
+xyPlot
+odbAccess
 ------------------------------------------
-
+抽象基本类型
+允许类似对象共享公共属性
+所谓抽象，是指Abaqus对象模型中并未包含属于抽象基本类型的对象，而是通过抽象基本类型来建立对象之间的关系。
 ------------------------------------------
 
 ------------------------------------------
