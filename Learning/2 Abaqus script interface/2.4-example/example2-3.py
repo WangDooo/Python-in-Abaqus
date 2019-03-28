@@ -16,16 +16,27 @@ myViewport = session.Viewport(name='Superposition example', origin=(10,10), widt
 
 
 # 4. 打开输出数据库
-myOdb = visualization.openOdb(path=viewer_tutorial.odb)
+myOdb = visualization.openOdb(path='D:\\Coding\\Github\\Python-in-Abaqus\\Learning\\2 Abaqus script interface\\2.4-example\\viewer_tutorial.odb') # path 应该给出文件的绝对路径
+myViewport.setValues(displayedObject=myOdb)
 
-# 4.创建部件实例
-myAssembly = mdb.models['Model A'].rootAssembly
-myInstance = myAssembly.Instance(name='Part A-1', part=myPart, dependent=OFF)
+# 5. 获取Step1和Step2结束时刻的位移增量和应力增量
+firstStep = myOdb.steps['Step-1']
+secondStep = myOdb.steps['Step-2']
 
-# 5.布置网格种子 创建新视口 显示划分网格后的部件实例
-partInstances = (myInstance,)
-myAssembly.seedPartInstance(regions=partInstances, size=5.0)
-myAssembly.generateMesh(regions=partInstances)
-myViewport = session.Viewport(name='Viewport for Model A', origin=(20,20), width=150, height=100)
-myViewport.assemblyDisplay.setValues(renderStyle=SHADED, mesh=ON)
-myViewport.setValues(displayedObject=myAssembly)
+frame1 = firstStep.frames[-1]
+frame2 = secondStep.frames[-1]
+
+displacement1 = frame1.fieldOutputs['U']
+displacement2 = frame2.fieldOutputs['U']
+stress1 = frame1.fieldOutputs['S']
+stress2 = frame2.fieldOutputs['S']
+
+deltaDisplacement = displacement2 - displacement1
+deltaStress = stress2 - stress1
+
+# 6. 在新视口中显示deltaDisplacement
+myViewport.odbDisplay.setDeformedVariable(deltaDisplacement)
+
+# 7. 在新视口中显示deltaStress
+myViewport.odbDisplay.setPrimaryVariable(field=deltaStress, outputPositio=INTEGRATION_POINT, refinement=(INVARIANT, 'Mises'))
+myViewport.odbDisplay.display.setValues(plotState=(CONTOURS_ON_DEF,))
