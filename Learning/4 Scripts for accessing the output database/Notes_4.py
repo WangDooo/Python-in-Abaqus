@@ -18,11 +18,29 @@
 结果模型：分析步step和帧frame有关
 5. 场输出和历史输出
 4.1.2 使用对象模型编写脚本
-odb.step
+odb.steps['10 hz vibration'].frames[3].fieldOutputs['U'].values[47]
+对象模型实质上是Abaqus脚本接口命令的结构层次关系
 
 ------------------------------------------
-
+4.2 输出数据库对象模型
 ------------------------------------------
+包括 1.model data 2. results data
+4.2.1 模型数据
+parts 
+root assembly 每个输出数据库对象模型中只能包含1个根装配
+part instances
+regions
+materials
+sections
+section assignments
+section categories
+调用prettyPrint方法可以查看输出数据库的状态和对象模型的层次结构关系
+from odbAccess import *
+from textRepr import *
+odb = openOdb('newbeam3d.odb')
+prettyPrint(odb, 2)
+4.2.2 结果模型
+
 
 ------------------------------------------
 
