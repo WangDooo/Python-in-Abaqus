@@ -1,4 +1,6 @@
 ------------------------------------------
+第四章 编写脚本访问输出数据库
+------------------------------------------
 4.1 简介
 ------------------------------------------
 4.1.1 三组概念
@@ -40,12 +42,106 @@ from textRepr import *
 odb = openOdb('newbeam3d.odb')
 prettyPrint(odb, 2)
 4.2.2 结果模型
-
+1. 分析步 steps
+crushStep = odb.steps['Crush']
+2. 帧 frames
+crushFrame = crushStep.frames[-1]
+3. 场输出 field output
+场输出可以输出某个计算结果的所有分量，数据信息量非常大
+stress = crushFrame.fieldOutputs['S']
+4. 历史输出 histoty output
+为某个点或模型的小部分区域定义结果输出，可以输出分析结果的某个单独变量
+u2Deflection = endPoint.histotyOutputs['U2']
+HistoryRegion对象可以定义为：节点、积分点、某个区域、材料点、整个模型
+endPoint = crushStep.histotyRegions['end point']
+给定历史输出对象u2Deflection后，提取结果的命令
+for time, value in u2Deflection.data:
+	print('Time:',time,'U2 deflection:',value)
 
 ------------------------------------------
-
+4.3 从（向）输出数据库读取（写入）数据
 ------------------------------------------
+4.3.1 打开（创建）输出数据库
+打开 openOdb()
+from odbAccess import *
+odb = openOdb(path='new_viewer_tutorial.odb')
+创建 构造函数Odb
+odb = Odb(name='myData', analysisTitle='derived data', description='test problem', path='testWrite.odb')
+odb.save()
 
+4.3.2 读取（写入）模型数据
+4.3.2.1 读取模型数据
+1. 根装配	每个输出数据库对象模型中只能包含1个根装配
+myAssembly = odb.rootAssembly
+2. 部件实例
+for instanceName in odb.rootAssembly.instances.keys():
+	print(instanceName)
+3. 区域
+print('Node sets=', odb.rootAssembly.nodeSets.keys())
+print('Node sets=', odb.rootAssembly.instances['PART-1-1'].nodeSets.keys())
+print('Element sets=', odb.rootAssembly.instances['PART-1-1'].elementSets.keys())
+topNodeSet = odb.rootAssembly.instances['PART-1-1'].nodeSets['TOP']
+4. 材料
+allMaterials = odb.materials
+for materialName in allMaterials.keys():
+	print('Material Name:', materialName)
+输出所有material对象的各向同性弹性材料
+for material in allMaterials.values():
+	if hasattr(material,'elastic'):
+		elastic = material.elastic
+		if elastic.type == 'ISOTROPIC':
+			print('isotropic elastic behavior, type=', elastic.moduli)
+		title1 = 'Young modulus Poisson ratio'
+		title2 = ''
+		if elastic.temperatureDependency == ON:
+			title2 = 'Temperature'
+		dep = elastic.dependencies
+		title3 = ''
+		for x in range(dep):
+			title3 += 'field#'+str(x)
+		print(title1,title2,title3)
+		for dataline in elastic.table:
+			print(dataline)
+	else:
+		print('NO elastic')
+输出超性材料
+if hasattr(material, 'hyperelastic'):
+	hyperelastic = material.hyperelastic
+	testData = hyperelastic.testData
+	if testData == 'ON':
+		if hasattr(hyperelastic, 'biaxiaTestData'):
+			biaxiaTestData = hyperelastic.biaxiaTestData
+			print('smoothing type:', biaxiaTestData.smoothing)
+5. 截面
+allSections = odb.sections
+for sectionName in allSections.keys():
+	print('Section Name:', sectionName)
+
+for mySection in allSections.values():
+	temp_s = str(type(mySection)).replace("<type '",'').replace("'>",'')
+	if temp_s == 'HomogeneousSolidSection':
+		print('material name =', mySection.material)
+		print('thickness =', mySection.thickness)
+6. 截面分配
+截面分配的目的是将部件实例的单元与截面属性建立联系
+instances = odb.rootAssembly.instances
+for instance in instances.values():
+	assignments = instance.sectionAssignments
+	print('Instance:', instance.name)
+	for sa in assignments:
+		region = sa.region
+		elements = region.elements
+		print('Section:', sa.sectionName)
+		print('Elements associated with this section:')
+		for e in elements:
+			print('label:',e.label)
+
+4.3.2.2 写入模型数据
+1. 部件
+part1 = odb.Part(name='part-1', embeddedSpace=THREE_D, type=DEFORMABLE_BODY)
+调用addNodes通过指定节点编号和节点坐标来添加节点信息
+ndoeData = ((1,1,0,0),(2,2,0,0),(3,2,1,0.1),(4,1,1,0.1),(5,2,-1,-0.1),(6,1,-1,-0.1),)
+part1.addNodes(nodeData=nodeData, nodeSetName='nset-1')
 ------------------------------------------
 
 ------------------------------------------
