@@ -138,14 +138,60 @@ for instance in instances.values():
 
 4.3.2.2 写入模型数据
 1. 部件
+创建 构造函数Odb
+odb = Odb(name='myData', analysisTitle='derived data', description='test problem', path='testWrite.odb')
+odb.save()
+
 part1 = odb.Part(name='part-1', embeddedSpace=THREE_D, type=DEFORMABLE_BODY)
 调用addNodes通过指定节点编号和节点坐标来添加节点信息
-ndoeData = ((1,1,0,0),(2,2,0,0),(3,2,1,0.1),(4,1,1,0.1),(5,2,-1,-0.1),(6,1,-1,-0.1),)
+nodeData = ((1,1,0,0),(2,2,0,0),(3,2,1,0.1),(4,1,1,0.1),(5,2,-1,-0.1),(6,1,-1,-0.1),)
 part1.addNodes(nodeData=nodeData, nodeSetName='nset-1')
-------------------------------------------
+创建节点和节点集后，还应该创建单元并指定单元类型 调用addElements方法向部件中添加单元
+sCat = odb.SectionCategory(name='S5', description='Five-Layered Shell')
+spBot = sCat.SectionPoint(number=1, description='Bottom')
+spMid = sCat.SectionPoint(number=3, description='Middle')
+spTop = sCat.SectionPoint(number=5, description='Top')
+elementData = ((1,1,2,3,4), (2,6,5,2,1),)
+part1.addElements(elementData=elementData, type='S4', elementSetName='eset-1', sectionCategory=sCat)
+2.根装配
+odb.
+3. 部件实例
+a = odb.rootAssembly
+instancel = a.Instance(name='part-1-1', object=part1)
+注：只能对部件添加节点和单元，而不允许对部件实例添加节点和单元
+4. 区域
+# 创建部件实例单元集
+eLabels = [9,99]
+elementSet = instancel.ElementSetFromElementLabels(name='elsetA', elementLabels=eLabels)
+# 创建根装配下的节点集
+nodeLabels = (5,11)
+instanceName = 'part-1-1'
+nodeSet = assembly.NodeSetFromNodeLabels(name='nodesetRA', ((instanceName, nodeLabels), ))
+5. 材料
+from abaqusConstants import *  引用这个句 才定义type
+material_1 = odb.Material(name='Elastic Material')
+material_1.Elastic(type=ISOTROPIC, table=((12000,0.3),))
+6. 截面
+创建Section对象之前必须首先创建Material对象，如果Material对象不存在，将抛出异常
+sectionName = 'Homogeneous Solid Section'
+materialName = 'Elastic Material'
+mySection = odb.HomogeneousSolidSection(name=sectionName, material=materialName, thickness=2.0)
+再例如 调用CircularProfile构造函数创建圆形梁截面
+profileName = 'Circular Profile'
+radius = 10.0
+odb.CircularProfile(name='profileName', r=radius) 
+7. 截面分配
+elLabels = (1,2)
+elset = instancel.ElementSetFromElementLabels(name=materialName, elementLabels=elLabels)
+instancel.assignSection(region=elset, section=mySection)
+
+4.3.3 读取（写入）结果数据
+4.3.3.1 读取结果数据
 
 ------------------------------------------
 
+------------------------------------------
+4.4
 ------------------------------------------
 
 ------------------------------------------
