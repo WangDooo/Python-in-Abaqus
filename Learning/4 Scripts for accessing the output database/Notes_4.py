@@ -187,19 +187,118 @@ instancel.assignSection(region=elset, section=mySection)
 
 4.3.3 读取（写入）结果数据
 4.3.3.1 读取结果数据
+1. 分析步steps
+调用keys()方法可以获得结果数据的库关键字
+for stepName in odb.steps.keys():
+	print(stepName)
 
+step1 = odb.steps.values()[0]
+print(step1.name)
+2. 帧(frames)
+lastFrame = odb.steps['Step-1'].frames[-1]
+print(lastFrame)
+4.3.3.2 写入结果数据
+1. 分析步 steps
+构造函数 可以为 time domain		frequency domain	 modal domain
+step1 = odb.Step(name='step-1', description='', domain=TIME, timePeriod=1.0)
+2. 帧 frames
+frame1 = step1.Frame(incrementNumber=1, frameValue=0.1, description='')
+
+4.3.4 读取（写入）场输出数据
+4.3.4.1 读取场输出数据 
+场输出数据存储在OdbFrame对象的场输出库fieldOutputs中
+for fieldName in lastFrame.fieldOutputs.keys():
+	print(fieldName)
+提示：从输出数据库中读取场输出数据时可以定义不同的读取频率。因此，每一帧中并非都包含所有的场输出变量。
+# 输出最后一帧中场输出变量的名称、描述、成员类型
+for f in lastFrame.fieldOutputs.values():
+	print(f.name,f.description)
+	print('Type:',f.type)
+	# 对于每个计算量，输出其位置
+	for loc in f.locations:
+		print('Position:', loc.position)
+
+# 读取场输出变量中各个数据值
+displacement = lastFrame.fieldOutputs['U']
+fieldValues = displacement.values
+# 对于每个位移值，输出节点编号和节点坐标值
+for v in fieldValues:
+	print('Node=%d U[x]=%6.4f , U[y]=%6.4f' %(v.nodeLabel, v.data[0], v.data[1]))
+
+还可以使用区域参数读取场输出数据的子集
+使用模型数据创建OdbSet对象后，就可以调用getSubset方法读取区域上的场输出数据。通常情况下读入节点集或单元集数据。
+center = odb.rootAssembly.instances['PART-1-1'].nodeSets['PUNCH']
+centerDisplacement = displacement.getSubset(region=center)
+centerValues = centerDisplacement.values
+for v in centerValues:
+	print(v.nodeLabel, v.data)
+
+4.3.4.2 写入场输出数据 【没啥用，就先不看了】
+
+4.3.5 读取（写入）历史输出数据
+4.3.5.1 读取历史输出数据
+历史输出区域可以是1个节点、1个积分点、某个区域或1个材料点，而不允许对多个点进行历史输出
+场输出与帧有关，而历史输出则与分析步有关。
+历史输出数据储存在OdbStep对象的historyRegions库中。
+对于 时域分析(domain=MODAL)、频域分析(domain=FREQUENCY)、模态域分析(domain=MODAL)
+序列分别是由 (stepTime, value)       (frequency, value)            (mdoel, value) 组成的元组
+
+# 例：将第二个分析步的历史输出数据U2写入文件
+from odbAccess import *
+odb = openOdb(path='new_viewer_tutorial.odb')
+step2 = odb.steps['Step-2']
+region = step2.historyRegions['Node PART-1-1.1000']
+u2Data = region.historyOutputs['U2'].data
+dispFile = open('disp.dat','w')
+for time, u2Disp in u2Data:
+	dispFile.write('%10.4E %10.4E \n' % (time, u2Disp))
+dispFile.close()
+
+4.3.5.2 写入历史输出数据【没啥用，就先不看了】
+
+4.3.6 设置默认的显示变量
+默认的显示变量设置适用于分析步的所有帧。
+# 例：选择位移U作为某个分析步场变量和变形后场变量的默认设置
+field = odb.steps['impact'].frames[1].fieldOutputs['U']
+odb.steps['impact'].setDefaultField(field)
+odb.steps['impact'].setDefaultDeformField(field)
 ------------------------------------------
 
 ------------------------------------------
-4.4
+4.4 计算Abaqus得到的分析结果
+------------------------------------------
+4.4.1 数学运算规则
+
+4.4.2 有效的数学运算
+
+4.4.3 粗略计算
+提供两个粗略计算命令
+maxEnvelope()	minEnvelope()
+(env, lcIndex) = maxEnvelope([field1, field2,...])
+(env, lcIndex) = minEnvelope([field1, field2,...])
+
+(env, lcIndex) = maxEnvelope([field1, field2,...], invariant)
+(env, lcIndex) = minEnvelope([field1, field2,...], invariant)
+
+(env, lcIndex) = maxEnvelope([field1, field2,...], componentLabel)
+(env, lcIndex) = minEnvelope([field1, field2,...], componentLabel)
+
+Envelope命令返回env和lcIndex两个FieldOutput对象
+env:表示搜索到的极值
+lcIndex:表示与搜索到极值对应的场变量索引号
+invariant和componentLabel为可选参数 
+若从向量和张量中搜索极值，必须使用符号常数
+
+4.4.4 结果转换 【暂时用不到】
+如果场变量为向量或张量，Abaqus脚本接口支持在直角坐标系、柱坐标系和球坐标系之间进行结果转换。
 ------------------------------------------
 
 ------------------------------------------
-
+4.5 实例
 ------------------------------------------
-
-------------------------------------------
-
+4.5.4 读取节点信息和单元信息
+节点和单元信息属于模型数据，因此需要访问根装配对象rootAssembly
+odb_Node_Element_Information.py 
 ------------------------------------------
 
 ------------------------------------------
