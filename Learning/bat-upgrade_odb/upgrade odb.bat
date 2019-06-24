@@ -1,0 +1,1 @@
+abaqus -upgrade -job <newFileName> -odb <oldOdbFileName> 
