@@ -7,8 +7,8 @@ with open('odb-in-keywords.py', "r", encoding="utf-8") as f:
 	lines = f.readlines()
 
 # 设定循环范围 保存为数字列表
-pile_length = [i for i in range(10,13)]
-pile_width = [i*0.1 for i in range(5,8)]
+pile_length = [i for i in range(10,22,3)]
+pile_width = [i*0.1 for i in range(5,15,3)]
 soil_E = [i for i in range(15000000,18000000,1000000)]
 
 # 循环改变 以上变量
@@ -28,8 +28,9 @@ for p_l in pile_length:
 						'Re_pl':str(r_pl),
 						'Re_pw':str(r_pw),
 						'Re_sE':str(r_sE),
-						'Re_fileName':str(r_pl)+'-'+str(r_pw)+'-'+str(r_sE)}
-			# 为保存的文件命名
+						'Re_fileName':str(r_pl).replace('.','p')+'-'+str(r_pw).replace('.','p')+'-'+str(r_sE).replace('.','p')}
+			# 为保存的文件命名 
+			# ！！！Abaqus的Job名中不能有标点符号
 			file_name = str(r_pl)+'-'+str(r_pw)+'-'+str(r_sE)+'.py'
 
 
