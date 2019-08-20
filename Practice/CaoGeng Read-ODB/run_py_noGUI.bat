@@ -1,0 +1,1 @@
+call abaqus cae noGUI=odb_RF_RM.py

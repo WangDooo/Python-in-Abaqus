@@ -17,3 +17,4 @@ Abaqus Scripting Reference Manual
 Abaqus Scripting User's Manual
 Getting Started with Abaqus: Interactive Edition
 -------------------------------------
+2019-06-28 Done
