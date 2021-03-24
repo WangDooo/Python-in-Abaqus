@@ -8,7 +8,7 @@ with open('odb-in-keywords.py', "r", encoding="utf-8") as f:
 
 # 设定循环范围 保存为数字列表
 pile_length = [i for i in range(10,11)]			 # 测试 1组 桩长
-pile_diameter = [i*0.1 for i in range(10,15,5)]  # 6组
+pile_diameter = [i*0.1 for i in range(10,15,2)]  # 6组
 soil_size_TimesOfDiameter = [10,5,3]
 # soil_size_TimesOfDiameter = [20,10,9,8,7,6,5,4,3,2]
 
